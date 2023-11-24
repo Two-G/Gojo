@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gojo is Alive</title>
+</head>
+<body>
+    <style> 
+        body {overflow-x: hidden;}
+    </style>
+    <div class="full-width-text" id="repeatingText"></div>
+    <div class="full-width-text" id="repeatingText"></div>
+
+    <script>
+        // Funzione per ripetere la frase in base alla larghezza della finestra
+        function repeatText() {
+            const windowWidth = window.innerWidth;
+            const textElement = document.getElementById('repeatingText');
+            const phrase = 'Gojo is Alive ';
+            // Creare un elemento temporaneo per calcolare le dimensioni effettive del testo
+            const tempElement = document.createElement('span');
+            tempElement.style.fontSize = getComputedStyle(textElement).fontSize;
+            tempElement.style.visibility = 'hidden';
+            tempElement.textContent = phrase;
+            document.body.appendChild(tempElement);
+            
+            // Calcolare quante volte la frase si adatta alla larghezza della finestra
+            const repetitions = 999999;
+            
+            // Rimuovere l'elemento temporaneo
+            document.body.removeChild(tempElement);
+
+            // Creare la stringa ripetuta
+            textElement.textContent = phrase.repeat(repetitions);
+        }
+
+        // Esegui la funzione iniziale e ascolta gli eventi di ridimensionamento della finestra
+        repeatText();
+        window.addEventListener('resize', repeatText);
+    </script>
+</body>
+</html>
