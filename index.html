@@ -8,16 +8,13 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            overflow-x: hidden;
             margin: 0;
             padding: 0;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
-            line-height: 1.5;
-            white-space: nowrap; /* Ogni frase rimane sulla stessa linea */
-            overflow: hidden;
+            white-space: nowrap; /* Mantiene la frase su una sola riga */
         }
     </style>
 </head>
@@ -25,24 +22,37 @@
     <div id="content"></div>
 
     <script>
-        // Funzione per aggiungere una riga di testo completa
+        // Funzione per aggiungere righe complete con ripetizioni di "Gojo Is Alive"
         function addLineToPage() {
             const contentDiv = document.getElementById("content");
             const text = "Gojo Is Alive ";
+            const divWidth = window.innerWidth; // Ottiene la larghezza della finestra
+            const textWidth = measureTextWidth(text); // Misura la larghezza del testo "Gojo Is Alive"
+            
+            // Calcola quante volte ripetere la frase per riempire la larghezza della finestra
+            const repetitions = Math.ceil(divWidth / textWidth);
             let repeatedText = '';
 
-            // Aggiunge ripetutamente la frase per riempire l'intera larghezza della pagina
-            for (let i = 0; i < 20; i++) { // Cambia 20 in base alla larghezza della pagina
+            // Ripete la frase abbastanza volte da riempire l'intera larghezza
+            for (let i = 0; i < repetitions; i++) {
                 repeatedText += text;
             }
 
-            // Crea un nuovo div per la riga di testo
+            // Crea un nuovo div con la riga ripetuta
             const newLineDiv = document.createElement("div");
             newLineDiv.classList.add("repeating-text");
-            newLineDiv.innerText = repeatedText;
+            newLineDiv.innerText = repeatedText.trim(); // Rimuove eventuali spazi in eccesso
 
-            // Aggiungi la riga al contenitore
+            // Aggiungi la nuova riga al contenitore
             contentDiv.appendChild(newLineDiv);
+        }
+
+        // Funzione per misurare la larghezza del testo in pixel
+        function measureTextWidth(text) {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            context.font = "24px Arial"; // Stessa dimensione del testo nella pagina
+            return context.measureText(text).width;
         }
 
         // Funzione per rilevare lo scrolling e aggiungere più righe
@@ -53,7 +63,7 @@
             }
         }
 
-        // Esegui la funzione iniziale per riempire la pagina con 10 righe iniziali
+        // Aggiungi alcune righe iniziali
         for (let i = 0; i < 10; i++) {
             addLineToPage();
         }
