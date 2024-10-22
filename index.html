@@ -8,13 +8,15 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            overflow-y: auto; /* Permette lo scrolling orizzontale */
             margin: 0;
             padding: 0;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
-            white-space: nowrap; /* Mantiene la frase su una sola riga */
+            line-height: 1.5;
+            white-space: nowrap; /* Ogni frase rimane sulla stessa linea */
         }
     </style>
 </head>
@@ -22,51 +24,78 @@
     <div id="content"></div>
 
     <script>
-        // Funzione per aggiungere righe complete con ripetizioni di "Gojo Is Alive"
-        function addLineToPage() {
-            const contentDiv = document.getElementById("content");
-            const text = "Gojo Is Alive ";
-            const divWidth = window.innerWidth; // Ottiene la larghezza della finestra
-            const textWidth = measureTextWidth(text); // Misura la larghezza del testo "Gojo Is Alive"
-            
-            // Calcola quante volte ripetere la frase per riempire la larghezza della finestra
-            const repetitions = Math.ceil(divWidth / textWidth);
-            let repeatedText = '';
+        const contentDiv = document.getElementById("content");
+        const text = "Gojo Is Alive ";
 
-            // Ripete la frase abbastanza volte da riempire l'intera larghezza
-            for (let i = 0; i < repetitions; i++) {
-                repeatedText += text;
-            }
-
-            // Crea un nuovo div con la riga ripetuta
-            const newLineDiv = document.createElement("div");
-            newLineDiv.classList.add("repeating-text");
-            newLineDiv.innerText = repeatedText.trim(); // Rimuove eventuali spazi in eccesso
-
-            // Aggiungi la nuova riga al contenitore
-            contentDiv.appendChild(newLineDiv);
+        // Funzione per generare il testo ripetuto
+        function generateRepeatedText(repeatCount) {
+            return text.repeat(repeatCount);
         }
 
-        // Funzione per misurare la larghezza del testo in pixel
-        function measureTextWidth(text) {
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            context.font = "24px Arial"; // Stessa dimensione del testo nella pagina
-            return context.measureText(text).width;
+        // Funzione per aggiungere una riga di testo completa
+        function addLineToPage() {
+            const newLineDiv = document.createElement("div");
+            newLineDiv.classList.add("repeating-text");
+            newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
+            contentDiv.appendChild(newLineDiv);
+            trimTextIfNecessary(newLineDiv);
+        }
+
+        // Funzione per trimmare il testo se necessario
+        function trimTextIfNecessary(div) {
+            const rect = div.getBoundingClientRect();
+            const contentWidth = rect.width;
+
+            // Se la larghezza del div supera la larghezza della finestra
+            if (contentWidth > window.innerWidth) {
+                const trimmedText = trimToLastAlive(div.innerText);
+                div.innerText = trimmedText;
+
+                // Verifica se il testo trimmato è ancora troppo largo
+                if (div.getBoundingClientRect().width > window.innerWidth) {
+                    div.innerText = ''; // Rimuovi il testo se è ancora troppo largo
+                }
+            }
+        }
+
+        // Funzione per trimmare il testo fino all'ultimo "Alive"
+        function trimToLastAlive(text) {
+            const lastIndex = text.lastIndexOf("Alive");
+            if (lastIndex !== -1) {
+                return text.substring(0, lastIndex + 5); // Include "Alive"
+            }
+            return ''; // Se non c'è "Alive", restituisce una stringa vuota
+        }
+
+        // Funzione per riempire la pagina con il testo
+        function fillPage() {
+            const windowHeight = window.innerHeight;
+            const lineHeight = 24 * 1.5; // Altezza della linea (font-size * line-height)
+            const linesToAdd = Math.ceil(windowHeight / lineHeight);
+
+            for (let i = 0; i < linesToAdd; i++) {
+                const newLineDiv = document.createElement("div");
+                newLineDiv.classList.add("repeating-text");
+                newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
+                contentDiv.appendChild(newLineDiv);
+                trimTextIfNecessary(newLineDiv);
+            }
         }
 
         // Funzione per rilevare lo scrolling e aggiungere più righe
         function handleScroll() {
             // Verifica se l'utente ha raggiunto la fine della pagina
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                addLineToPage(); // Aggiungi una nuova riga quando si arriva alla fine
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) { // Aggiunto un margine di 50px
+                const newLineDiv = document.createElement("div");
+                newLineDiv.classList.add("repeating-text");
+                newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
+                contentDiv.appendChild(newLineDiv);
+                trimTextIfNecessary(newLineDiv);
             }
         }
 
-        // Aggiungi alcune righe iniziali
-        for (let i = 0; i < 10; i++) {
-            addLineToPage();
-        }
+        // Riempire la pagina inizialmente
+        fillPage();
 
         // Ascolta l'evento di scrolling
         window.addEventListener('scroll', handleScroll);
