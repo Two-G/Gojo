@@ -6,25 +6,40 @@
     <title>Gojo Is Alive</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: hidden;
         }
-        h1 {
-            font-size: 48px;
+        .repeating-text {
+            font-size: 24px;
             color: #333;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
-    <h1 id="message"></h1>
+    <div id="content" class="repeating-text"></div>
 
     <script>
-        document.getElementById("message").innerText = "Gojo Is Alive";
+        // Funzione per riempire la pagina con la scritta ripetuta
+        function fillPageWithText() {
+            const contentDiv = document.getElementById("content");
+            const text = "Gojo Is Alive ";
+            let repeatedText = '';
+
+            // Creiamo abbastanza testo per riempire la pagina
+            for (let i = 0; i < 1000; i++) {
+                repeatedText += text;
+            }
+
+            // Aggiungiamo il testo generato al div
+            contentDiv.innerText = repeatedText;
+        }
+
+        // Esegui la funzione
+        fillPageWithText();
     </script>
 </body>
 </html>
