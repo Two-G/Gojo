@@ -1,43 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojo is Alive</title>
+    <title>Gojo Is Alive</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            font-size: 48px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <style> 
-        body {overflow-x: hidden;width: 100%;}
-    </style>
-    <div class="full-width-text" id="repeatingText"></div>
-    <div class="full-width-text" id="repeatingText"></div>
+    <h1 id="message"></h1>
 
     <script>
-        // Funzione per ripetere la frase in base alla larghezza della finestra
-        function repeatText() {
-            const windowWidth = window.innerWidth;
-            const textElement = document.getElementById('repeatingText');
-            const phrase = 'Gojo is Alive ';
-            // Creare un elemento temporaneo per calcolare le dimensioni effettive del testo
-            const tempElement = document.createElement('span');
-            tempElement.style.fontSize = getComputedStyle(textElement).fontSize;
-            tempElement.style.visibility = 'hidden';
-            tempElement.textContent = phrase;
-            document.body.appendChild(tempElement);
-            
-            // Calcolare quante volte la frase si adatta alla larghezza della finestra
-            const repetitions = 999999;
-            
-            // Rimuovere l'elemento temporaneo
-            document.body.removeChild(tempElement);
-
-            // Creare la stringa ripetuta
-            textElement.textContent = phrase.repeat(repetitions);
-        }
-
-        // Esegui la funzione iniziale e ascolta gli eventi di ridimensionamento della finestra
-        repeatText();
-        window.addEventListener('resize', repeatText);
+        document.getElementById("message").innerText = "Gojo Is Alive";
     </script>
 </body>
 </html>
