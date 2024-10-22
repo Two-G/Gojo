@@ -8,14 +8,20 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             overflow: hidden;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
-            line-height: 1.5;
+            white-space: normal; /* Permette di andare a capo automaticamente */
+            word-break: break-word; /* Spezza le parole quando necessario */
+            text-align: center; /* Centra il testo */
         }
     </style>
 </head>
@@ -23,7 +29,6 @@
     <div id="content" class="repeating-text"></div>
 
     <script>
-        // Funzione per riempire la pagina con la scritta ripetuta
         function fillPageWithText() {
             const contentDiv = document.getElementById("content");
             const text = "Gojo Is Alive ";
