@@ -19,9 +19,9 @@
         .repeating-text {
             font-size: 24px;
             color: #333;
-            white-space: normal; /* Permette di andare a capo automaticamente */
-            word-break: break-word; /* Spezza le parole quando necessario */
-            text-align: center; /* Centra il testo */
+            line-height: 1.5; /* Controlla lo spazio verticale tra le righe */
+            white-space: pre-wrap; /* Mantiene gli spazi e permette il ritorno a capo */
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -31,15 +31,15 @@
     <script>
         function fillPageWithText() {
             const contentDiv = document.getElementById("content");
-            const text = "Gojo Is Alive ";
+            const text = "Gojo Is Alive "; // Frase da ripetere
             let repeatedText = '';
 
-            // Creiamo abbastanza testo per riempire la pagina
-            for (let i = 0; i < 1000; i++) {
+            // Ripeti abbastanza la frase per riempire l'intera pagina
+            for (let i = 0; i < 500; i++) { // Riduciamo il numero per una migliore gestione
                 repeatedText += text;
             }
 
-            // Aggiungiamo il testo generato al div
+            // Aggiungiamo il testo ripetuto al div
             contentDiv.innerText = repeatedText;
         }
 
