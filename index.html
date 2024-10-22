@@ -8,47 +8,55 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            white-space: pre-wrap;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
             line-height: 1.5;
-            word-break: break-word;
-            display: inline-block;
+            white-space: nowrap; /* Ogni frase rimane sulla stessa linea */
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <div id="content" class="repeating-text"></div>
+    <div id="content"></div>
 
     <script>
-        // Funzione per riempire la pagina con la scritta ripetuta
-        function addTextToPage() {
+        // Funzione per aggiungere una riga di testo completa
+        function addLineToPage() {
             const contentDiv = document.getElementById("content");
             const text = "Gojo Is Alive ";
             let repeatedText = '';
 
-            // Creiamo abbastanza testo per aggiungere nuove righe
-            for (let i = 0; i < 1000; i++) {
+            // Aggiunge ripetutamente la frase per riempire l'intera larghezza della pagina
+            for (let i = 0; i < 20; i++) { // Cambia 20 in base alla larghezza della pagina
                 repeatedText += text;
             }
 
-            // Aggiungiamo il testo generato al div
-            contentDiv.innerText += repeatedText;
+            // Crea un nuovo div per la riga di testo
+            const newLineDiv = document.createElement("div");
+            newLineDiv.classList.add("repeating-text");
+            newLineDiv.innerText = repeatedText;
+
+            // Aggiungi la riga al contenitore
+            contentDiv.appendChild(newLineDiv);
         }
 
         // Funzione per rilevare lo scrolling e aggiungere più righe
         function handleScroll() {
             // Verifica se l'utente ha raggiunto la fine della pagina
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                addTextToPage(); // Aggiungi altre righe quando si arriva alla fine
+                addLineToPage(); // Aggiungi una nuova riga quando si arriva alla fine
             }
         }
 
-        // Esegui la funzione iniziale per riempire la pagina
-        addTextToPage();
+        // Esegui la funzione iniziale per riempire la pagina con 10 righe iniziali
+        for (let i = 0; i < 10; i++) {
+            addLineToPage();
+        }
 
         // Ascolta l'evento di scrolling
         window.addEventListener('scroll', handleScroll);
