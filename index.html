@@ -8,20 +8,15 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            white-space: pre-wrap;
+            word-wrap: break-word;
             overflow: hidden;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
-            line-height: 1.5; /* Controlla lo spazio verticale tra le righe */
-            white-space: pre-wrap; /* Mantiene gli spazi e permette il ritorno a capo */
-            word-wrap: break-word;
+            line-height: 1.5;
+            white-space: nowrap; /* Evita il ritorno a capo all'interno della frase */
         }
     </style>
 </head>
@@ -29,17 +24,18 @@
     <div id="content" class="repeating-text"></div>
 
     <script>
+        // Funzione per riempire la pagina con la scritta ripetuta
         function fillPageWithText() {
             const contentDiv = document.getElementById("content");
-            const text = "Gojo Is Alive "; // Frase da ripetere
+            const text = "Gojo Is Alive ";
             let repeatedText = '';
 
-            // Ripeti abbastanza la frase per riempire l'intera pagina
-            for (let i = 0; i < 500; i++) { // Riduciamo il numero per una migliore gestione
+            // Creiamo abbastanza testo per riempire la pagina
+            for (let i = 0; i < 1000; i++) {
                 repeatedText += text;
             }
 
-            // Aggiungiamo il testo ripetuto al div
+            // Aggiungiamo il testo generato al div
             contentDiv.innerText = repeatedText;
         }
 
