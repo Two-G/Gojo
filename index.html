@@ -9,14 +9,14 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             white-space: pre-wrap;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
             line-height: 1.5;
-            word-break: break-word; /* Permette la divisione delle parole solo quando necessario */
-            display: inline-block; /* Fa sì che il testo venga gestito come un blocco in linea */
+            word-break: break-word;
+            display: inline-block;
         }
     </style>
 </head>
@@ -25,22 +25,33 @@
 
     <script>
         // Funzione per riempire la pagina con la scritta ripetuta
-        function fillPageWithText() {
+        function addTextToPage() {
             const contentDiv = document.getElementById("content");
             const text = "Gojo Is Alive ";
             let repeatedText = '';
 
-            // Creiamo abbastanza testo per riempire la pagina
+            // Creiamo abbastanza testo per aggiungere nuove righe
             for (let i = 0; i < 1000; i++) {
                 repeatedText += text;
             }
 
             // Aggiungiamo il testo generato al div
-            contentDiv.innerText = repeatedText;
+            contentDiv.innerText += repeatedText;
         }
 
-        // Esegui la funzione
-        fillPageWithText();
+        // Funzione per rilevare lo scrolling e aggiungere più righe
+        function handleScroll() {
+            // Verifica se l'utente ha raggiunto la fine della pagina
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+                addTextToPage(); // Aggiungi altre righe quando si arriva alla fine
+            }
+        }
+
+        // Esegui la funzione iniziale per riempire la pagina
+        addTextToPage();
+
+        // Ascolta l'evento di scrolling
+        window.addEventListener('scroll', handleScroll);
     </script>
 </body>
 </html>
