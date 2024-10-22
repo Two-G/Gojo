@@ -9,14 +9,14 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             white-space: pre-wrap;
-            word-wrap: break-word;
             overflow: hidden;
         }
         .repeating-text {
             font-size: 24px;
             color: #333;
             line-height: 1.5;
-            white-space: nowrap; /* Evita il ritorno a capo all'interno della frase */
+            word-break: break-word; /* Permette la divisione delle parole solo quando necessario */
+            display: inline-block; /* Fa sì che il testo venga gestito come un blocco in linea */
         }
     </style>
 </head>
