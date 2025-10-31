@@ -1,104 +1,85 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gojo Is Alive</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            overflow-y: auto; /* Permette lo scrolling orizzontale */
-            margin: 0;
-            padding: 0;
-        }
-        .repeating-text {
-            font-size: 24px;
-            color: #333;
-            line-height: 1.5;
-            white-space: nowrap; /* Ogni frase rimane sulla stessa linea */
-        }
-    </style>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Versione PNG -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- Per compatibilità Apple -->
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gojo Is Alive</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: cyan;
+      font-family: monospace;
+      white-space: pre; /* mantiene spazi e va a capo solo dove c'è \n */
+      overflow: scroll; /* abilita scorrimento in entrambe le direzioni */
+    }
+
+    #content {
+      font-size: 20px;
+      line-height: 24px;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="content"></div>
+  <div id="content"></div>
 
-    <script>
-        const contentDiv = document.getElementById("content");
-        const text = "Gojo Is Alive ";
+  <script>
+    const content = document.getElementById("content");
+    const text = "🔵 Gojo is alive 🔴 ";
+    const lineHeight = 24; // deve corrispondere al CSS
+    const charWidth = 12;  // larghezza media di un carattere monospace
 
-        // Funzione per generare il testo ripetuto
-        function generateRepeatedText(repeatCount) {
-            return text.repeat(repeatCount);
+    let renderedRows = 0;
+    let renderedCols = 0;
+
+    function fillScreen() {
+      const visibleWidth = window.innerWidth + window.scrollX;
+      const visibleHeight = window.innerHeight + window.scrollY;
+
+      const totalCols = Math.ceil(visibleWidth / charWidth);
+      const totalRows = Math.ceil(visibleHeight / lineHeight);
+
+      // Se serve più righe
+      while (renderedRows < totalRows) {
+        // Nessun taglio: ripete indefinitamente la frase
+        let line = "";
+        while (line.length < totalCols * 2) { // un po' extra per lo scroll orizzontale
+          line += text;
         }
+        content.innerHTML += line + "\n";
+        renderedRows++;
+      }
 
-        // Funzione per aggiungere una riga di testo completa
-        function addLineToPage() {
-            const newLineDiv = document.createElement("div");
-            newLineDiv.classList.add("repeating-text");
-            newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
-            contentDiv.appendChild(newLineDiv);
-            trimTextIfNecessary(newLineDiv);
+      // Se serve più colonne, aggiorna ogni riga
+      if (renderedCols < totalCols) {
+        const lines = content.innerHTML.split("\n");
+        for (let i = 0; i < lines.length - 1; i++) {
+          while (lines[i].length < totalCols * 2) {
+            lines[i] += text;
+          }
         }
+        content.innerHTML = lines.join("\n");
+        renderedCols = totalCols;
+      }
+    }
 
-        // Funzione per trimmare il testo se necessario
-        function trimTextIfNecessary(div) {
-            const rect = div.getBoundingClientRect();
-            const contentWidth = rect.width;
+    fillScreen();
 
-            // Se la larghezza del div supera la larghezza della finestra
-            if (contentWidth > window.innerWidth) {
-                const trimmedText = trimToLastAlive(div.innerText);
-                div.innerText = trimmedText;
-
-                // Verifica se il testo trimmato è ancora troppo largo
-                if (div.getBoundingClientRect().width > window.innerWidth) {
-                    div.innerText = ''; // Rimuovi il testo se è ancora troppo largo
-                }
-            }
-        }
-
-        // Funzione per trimmare il testo fino all'ultimo "Alive"
-        function trimToLastAlive(text) {
-            const lastIndex = text.lastIndexOf("Alive");
-            if (lastIndex !== -1) {
-                return text.substring(0, lastIndex + 5); // Include "Alive"
-            }
-            return ''; // Se non c'è "Alive", restituisce una stringa vuota
-        }
-
-        // Funzione per riempire la pagina con il testo
-        function fillPage() {
-            const windowHeight = window.innerHeight;
-            const lineHeight = 24 * 1.5; // Altezza della linea (font-size * line-height)
-            const linesToAdd = Math.ceil(windowHeight / lineHeight);
-
-            for (let i = 0; i < linesToAdd; i++) {
-                const newLineDiv = document.createElement("div");
-                newLineDiv.classList.add("repeating-text");
-                newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
-                contentDiv.appendChild(newLineDiv);
-                trimTextIfNecessary(newLineDiv);
-            }
-        }
-
-        // Funzione per rilevare lo scrolling e aggiungere più righe
-        function handleScroll() {
-            // Verifica se l'utente ha raggiunto la fine della pagina
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) { // Aggiunto un margine di 50px
-                const newLineDiv = document.createElement("div");
-                newLineDiv.classList.add("repeating-text");
-                newLineDiv.innerText = generateRepeatedText(20); // Cambia 20 in base alla larghezza della pagina
-                contentDiv.appendChild(newLineDiv);
-                trimTextIfNecessary(newLineDiv);
-            }
-        }
-
-        // Riempire la pagina inizialmente
-        fillPage();
-
-        // Ascolta l'evento di scrolling
-        window.addEventListener('scroll', handleScroll);
-    </script>
+    window.addEventListener("scroll", fillScreen);
+    window.addEventListener("resize", () => {
+      renderedRows = 0;
+      renderedCols = 0;
+      content.innerHTML = "";
+      fillScreen();
+    });
+  </script>
 </body>
 </html>
