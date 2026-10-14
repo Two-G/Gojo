@@ -1,85 +1,1733 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-  <!-- Versione PNG -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" href="favicon.png">
-
-  <!-- Per compatibilità Apple -->
   <link rel="apple-touch-icon" href="favicon.png">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gojo Is Alive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Gojo Is Alive — Unlimited Void</title>
   <style>
-    body {
-      margin: 0;
-      background-color: black;
-      color: cyan;
-      font-family: monospace;
-      white-space: pre; /* mantiene spazi e va a capo solo dove c'è \n */
-      overflow: scroll; /* abilita scorrimento in entrambe le direzioni */
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #040407;
+      color: rgba(185, 245, 255, 0.72);
+      font-family: 'Courier New', Courier, monospace;
+      overflow: scroll;
+      overscroll-behavior: none;
+      transition: background-color 0.6s ease;
+    }
+
+    body.domain-active {
+      background-color: #000003;
+      color: rgba(225, 245, 255, 0.9);
+    }
+
+    /* Inversion flash for Black Flash / Hollow Purple */
+    body.impact-flash {
+      filter: invert(1) hue-rotate(180deg) contrast(1.4);
+    }
+
+    /* Screen shake */
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-10px, 7px); }
+      40% { transform: translate(9px, -8px); }
+      60% { transform: translate(-7px, -5px); }
+      80% { transform: translate(6px, 8px); }
+    }
+
+    body.shaking #content {
+      animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    #svg-filters {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    /* Fluid Canvas (SVG Metaballs) */
+    #fluid-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 0;
+      pointer-events: none;
+      will-change: transform;
+      filter: url('#liquid-goo') drop-shadow(0 0 24px rgba(175, 45, 255, 0.5));
+    }
+
+    /* Sharp FX Canvas (Black Flash, Domain Stars, Shockwaves) */
+    #fx-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Matrix Rain Canvas of Gojo's Powers (behind shards during Domain Expansion) */
+    #matrix-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    body.domain-active #matrix-canvas {
+      opacity: 1;
+    }
+
+    /* Infinite scrolling text */
     #content {
+      position: relative;
+      z-index: 2;
       font-size: 20px;
-      line-height: 24px;
-      padding: 10px;
+      line-height: 26px;
+      font-weight: 700;
+      padding: 6px 12px;
+      white-space: pre;
+      text-shadow: 0 0 8px rgba(0, 225, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.95);
+      mix-blend-mode: screen;
+      letter-spacing: 0.5px;
+      will-change: transform, filter, opacity;
+    }
+
+    /* Phase 1 (Gojo vs Jogo): Negative + Violent directional slide */
+    #content.domain-slide-negative {
+      mix-blend-mode: normal;
+      background-color: #f4f8ff;
+      color: #030306;
+      text-shadow: -4px 0 0 #ff0044, 4px 0 0 #00d9ff;
+      filter: invert(1) contrast(2.4) saturate(1.8);
+      transform: translate3d(-12vw, 18px, 0) skewX(-24deg) scale(1.04);
+      transition:
+        transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.12s ease,
+        background-color 0.12s ease;
+    }
+
+    /* Phase 3 (Reverse Finale): Rewind of the negative slide */
+    #content.domain-rewind-slide {
+      mix-blend-mode: screen;
+      background-color: transparent;
+      color: rgba(185, 245, 255, 0.72);
+      text-shadow: 0 0 8px rgba(0, 225, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.95);
+      filter: none;
+      transform: translate3d(0, 0, 0) skewX(0deg) scale(1);
+      transition:
+        transform 0.55s cubic-bezier(0.68, -0.55, 0.27, 1.35),
+        filter 0.45s ease,
+        background-color 0.3s ease;
+    }
+
+    #content.shattered-hidden {
+      opacity: 0 !important;
+      transition: none !important;
+    }
+
+    /* Shattered text shards stage during Domain Expansion */
+    #shatter-stage {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 4;
+      pointer-events: none;
+      perspective: 1100px;
+      overflow: hidden;
+      display: none;
+    }
+
+    #shatter-stage.active {
+      display: block;
+    }
+
+    .text-shard {
+      position: absolute;
+      inset: -40px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 20px;
+      line-height: 26px;
+      font-weight: 700;
+      padding: 46px 52px;
+      white-space: pre;
+      letter-spacing: 0.5px;
+      background-color: rgba(242, 248, 255, 0.94);
+      color: #040408;
+      text-shadow: -3px 0 0 #ff0055, 3px 0 0 #00e5ff;
+      filter: invert(1) contrast(2.1);
+      transform-style: preserve-3d;
+      will-change: transform, opacity, filter;
+      box-shadow: inset 0 0 20px rgba(180, 50, 255, 0.65);
+    }
+
+    .row {
+      height: 26px;
+    }
+
+    /* Anime Kanji Overlay (Blue, Red, Purple, Unlimited Void) */
+    #kanji-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    .kanji-side {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) scale(0.85);
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
+      font-weight: 900;
+      font-size: clamp(24px, 4vw, 54px);
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      writing-mode: vertical-rl;
+      letter-spacing: 6px;
+    }
+
+    #kanji-blue {
+      left: 4%;
+      color: #ccf6ff;
+      text-shadow: 0 0 18px #0088ff, 0 0 36px #0044ff;
+    }
+
+    #kanji-red {
+      right: 4%;
+      color: #ffd6de;
+      text-shadow: 0 0 18px #ff0044, 0 0 36px #aa0022;
+    }
+
+    .charging #kanji-blue,
+    .charging #kanji-red {
+      opacity: 0.92;
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    #kanji-center {
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
+      font-weight: 900;
+      font-size: clamp(32px, 7vw, 92px);
+      color: #ffffff;
+      text-shadow: 0 0 25px #c832ff, 0 0 60px #7a00ff, 0 4px 15px #000;
+      opacity: 0;
+      transform: scale(1.6);
+      transition: opacity 0.15s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+      letter-spacing: 6px;
+    }
+
+    #kanji-center.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    #kanji-sub {
+      display: block;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: clamp(11px, 2.2vw, 18px);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #e5b8ff;
+      margin-top: 8px;
+    }
+
+    /* Responsive Bottom HUD (Desktop & Mobile) */
+    #hud {
+      position: fixed;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: max-content;
+      max-width: calc(100vw - 20px);
+      background: rgba(8, 8, 16, 0.88);
+      border: 1px solid rgba(190, 80, 255, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #f2e8ff;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 24px;
+      letter-spacing: 0.4px;
+      box-shadow: 0 0 25px rgba(155, 0, 255, 0.35);
+    }
+
+    .hud-btn {
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .hud-btn:active {
+      transform: scale(0.94);
+    }
+
+    #audio-btn {
+      background: linear-gradient(135deg, #0077ff, #9b00ff, #ff0044);
+      box-shadow: 0 0 12px rgba(170, 0, 255, 0.6);
+    }
+
+    #domain-btn {
+      background: linear-gradient(135deg, #111122, #440088, #00bcd4);
+      border: 1px solid rgba(0, 225, 255, 0.5);
+      box-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+    }
+
+    #bf-btn {
+      background: linear-gradient(135deg, #090005, #7a001e, #ff003c);
+      border: 1px solid rgba(255, 40, 90, 0.55);
+      box-shadow: 0 0 12px rgba(255, 0, 60, 0.45);
+    }
+
+    .hud-hint {
+      padding: 0 4px;
+      opacity: 0.9;
+      text-align: center;
+    }
+
+    @media (max-width: 680px) {
+      #content {
+        font-size: 16px;
+        line-height: 22px;
+      }
+      .text-shard {
+        font-size: 16px;
+        line-height: 22px;
+      }
+      .row {
+        height: 22px;
+      }
+      #hud {
+        padding: 8px 10px;
+        gap: 6px;
+        border-radius: 18px;
+      }
+      .hud-btn {
+        font-size: 10px;
+        padding: 7px 10px;
+      }
+      .hud-hint {
+        width: 100%;
+        font-size: 10.5px;
+        padding-top: 2px;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #06060a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #0088ff, #a200ff, #ff0044);
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
+  <svg id="svg-filters">
+    <defs>
+      <filter id="liquid-goo" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
+        <feColorMatrix in="blur" mode="matrix"
+          values="1 0 0 0 0  
+                  0 1 0 0 0  
+                  0 0 1 0 0  
+                  0 0 0 22 -9" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+
+  <canvas id="fluid-canvas"></canvas>
+  <canvas id="fx-canvas"></canvas>
+  <canvas id="matrix-canvas"></canvas>
+  <div id="shatter-stage"></div>
+
+  <div id="kanji-overlay">
+    <div id="kanji-blue" class="kanji-side">順転「蒼」</div>
+    <div id="kanji-center">
+      <span id="kanji-main">虚式「茈」</span>
+      <span id="kanji-sub">Hollow Technique: Purple</span>
+    </div>
+    <div id="kanji-red" class="kanji-side">反転「赫」</div>
+  </div>
+
   <div id="content"></div>
 
+  <div id="hud">
+    <button id="audio-btn" class="hud-btn">🔇 Sound Off</button>
+    <button id="domain-btn" class="hud-btn">🤞 Unlimited Void</button>
+    <button id="bf-btn" class="hud-btn">⚡ Black Flash</button>
+    <span class="hud-hint">Hold &amp; Release: <b>Hollow Purple</b> | Keys: <b>[Space]</b> / <b>[F]</b></span>
+  </div>
+
   <script>
+    /* =========================================================================
+     * 0. CONSOLE SPAMMER "GOJO IS ALIVE" (OFFICIAL ENGLISH TRANSLATIONS)
+     * ========================================================================= */
+    let agendaCounter = 1;
+    const gojoQuotes = [
+      "🔵 GOJO IS ALIVE 🔴 — THE STRONGEST SORCERER HAS RETURNED",
+      "🟣 虚式「茈」 HOLLOW TECHNIQUE: PURPLE — 200% OUTPUT",
+      "🤞 領域展開「無量空処」 — DOMAIN EXPANSION: UNLIMITED VOID",
+      "👁️ SIX EYES + LIMITLESS — THROUGHOUT HEAVEN AND EARTH, I ALONE AM THE HONORED ONE",
+      "⚡ 黒閃 BLACK FLASH — NAH, I'D WIN."
+    ];
+
+    setInterval(() => {
+      const msg = gojoQuotes[agendaCounter % gojoQuotes.length];
+      const isPurple = agendaCounter % 3 === 0;
+      const bg = isPurple
+        ? "linear-gradient(90deg, #0066ff, #9900ff, #ff0044)"
+        : agendaCounter % 2 === 0 ? "#002b5c" : "#5c001e";
+      const border = isPurple ? "#e066ff" : agendaCounter % 2 === 0 ? "#00ccff" : "#ff2255";
+
+      console.log(
+        `%c 🔵 GOJO IS ALIVE 🔴 [#${agendaCounter}] %c ${msg} `,
+        `background: ${bg}; color: #fff; font-weight: bold; padding: 3px 6px; border-radius: 4px 0 0 4px; border: 1px solid ${border};`,
+        `background: #090912; color: #e2b8ff; font-weight: bold; padding: 3px 8px; border-radius: 0 4px 4px 0; border: 1px solid ${border};`
+      );
+      agendaCounter++;
+    }, 120);
+
+    /* =========================================================================
+     * 0.5 MOBILE HAPTIC VIBRATION ENGINE (IMMERSIVE CURSED ENERGY FEEDBACK)
+     * ========================================================================= */
+    class HapticEngine {
+      constructor() {
+        this.supported = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+        this.chargeInterval = null;
+        this.lastCorePulse = 0;
+      }
+
+      vibrate(pattern) {
+        if (!this.supported) return;
+        try {
+          navigator.vibrate(pattern);
+        } catch (_) {}
+      }
+
+      // Subtle haptic tick when Blue & Red collide in the center
+      pulseFusion() {
+        const now = performance.now();
+        if (now - this.lastCorePulse < 240) return;
+        this.lastCorePulse = now;
+        this.vibrate(12);
+      }
+
+      // Continuous rhythmic vibration while holding down to charge Hollow Purple
+      startCharge() {
+        if (!this.supported || this.chargeInterval) return;
+        this.vibrate([25, 35, 35]);
+        this.chargeInterval = setInterval(() => {
+          this.vibrate([28, 40]);
+        }, 85);
+      }
+
+      stopCharge() {
+        if (this.chargeInterval) {
+          clearInterval(this.chargeInterval);
+          this.chargeInterval = null;
+        }
+      }
+
+      // Massive explosive shockwave when releasing Hollow Purple
+      detonatePurple() {
+        this.stopCharge();
+        this.vibrate([90, 30, 220, 40, 110, 30, 55]);
+      }
+
+      // Sharp lightning strike pattern for Black Flash (Kokusen)
+      blackFlash() {
+        this.vibrate([45, 20, 140, 18, 75, 15, 35]);
+      }
+
+      // 3-Stage Domain Expansion haptics (Slide -> Shatter -> Temporal Reverse)
+      domainSlide() {
+        this.vibrate([65, 25, 95, 20, 120]);
+      }
+
+      domainShatter() {
+        this.vibrate([180, 25, 110, 25, 210, 35, 95, 25, 60]);
+      }
+
+      domainRewind() {
+        this.vibrate([25, 45, 45, 35, 75, 25, 140]);
+      }
+    }
+
+    const haptics = new HapticEngine();
+
+    /* =========================================================================
+     * 1. PROCEDURAL JJK AUDIO SYNTHESIZER (PURPLE, BLACK FLASH & UNLIMITED VOID)
+     * ========================================================================= */
+    class HollowPurpleAudio {
+      constructor() {
+        this.ctx = null;
+        this.enabled = false;
+        this.lastImpactTime = 0;
+        this.lastSparkTime = 0;
+      }
+
+      init() {
+        if (this.ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+
+        const bufferSize = this.ctx.sampleRate * 1.5;
+        this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = this.noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99 * b0 + white * 0.05;
+          b1 = 0.96 * b1 + white * 0.1;
+          b2 = 0.85 * b2 + white * 0.2;
+          data[i] = (b0 + b1 + b2 + white * 0.15) * 0.5;
+        }
+
+        this.droneOsc1 = this.ctx.createOscillator();
+        this.droneOsc2 = this.ctx.createOscillator();
+        this.droneFilter = this.ctx.createBiquadFilter();
+        this.droneGain = this.ctx.createGain();
+
+        this.droneOsc1.type = "sine";
+        this.droneOsc2.type = "triangle";
+        this.droneOsc1.frequency.value = 54;
+        this.droneOsc2.frequency.value = 108.4;
+
+        this.droneFilter.type = "lowpass";
+        this.droneFilter.frequency.value = 160;
+        this.droneFilter.Q.value = 4;
+
+        this.droneGain.gain.value = 0.09;
+
+        this.droneOsc1.connect(this.droneFilter);
+        this.droneOsc2.connect(this.droneFilter);
+        this.droneFilter.connect(this.droneGain);
+        this.droneGain.connect(this.ctx.destination);
+
+        this.droneOsc1.start();
+        this.droneOsc2.start();
+        this.enabled = true;
+      }
+
+      toggle() {
+        if (!this.ctx) {
+          this.init();
+          return true;
+        }
+        if (this.ctx.state === "suspended") this.ctx.resume();
+        this.enabled = !this.enabled;
+        this.droneGain.gain.setTargetAtTime(this.enabled ? 0.09 : 0, this.ctx.currentTime, 0.15);
+        return this.enabled;
+      }
+
+      updateDrone(isCharging, isDomain) {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const baseFreq = isDomain ? 38 : isCharging ? 84 : 55;
+        const cutoff = isDomain ? 620 : isCharging ? 460 : 190;
+
+        this.droneOsc1.frequency.setTargetAtTime(baseFreq, now, 0.1);
+        this.droneOsc2.frequency.setTargetAtTime(baseFreq * 2.005, now, 0.1);
+        this.droneFilter.frequency.setTargetAtTime(cutoff, now, 0.1);
+      }
+
+      playFusionPulse() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        if (now - this.lastImpactTime < 0.13) return;
+        this.lastImpactTime = now;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+
+        osc.frequency.setValueAtTime(98 + Math.random() * 25, now);
+        osc.frequency.exponentialRampToValueAtTime(28, now + 0.3);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.1, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.33);
+      }
+
+      playSpark() {
+        if (!this.enabled || !this.ctx || !this.noiseBuffer) return;
+        const now = this.ctx.currentTime;
+        if (now - this.lastSparkTime < 0.16) return;
+        this.lastSparkTime = now;
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1300 + Math.random() * 1500, now);
+        filter.Q.value = 5;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.055, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start(now, Math.random() * 0.5, 0.09);
+      }
+
+      playReleaseBoom() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(600, now);
+        filter.frequency.exponentialRampToValueAtTime(45, now + 0.75);
+
+        osc.frequency.setValueAtTime(190, now);
+        osc.frequency.exponentialRampToValueAtTime(22, now + 0.75);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.38, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.78);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.8);
+        this.playSpark();
+      }
+
+      playDomainExpansion() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const freqs = [220, 330, 440, 659.25, 880];
+        freqs.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(f, now + idx * 0.04);
+          osc.frequency.exponentialRampToValueAtTime(f * 0.98, now + 2.8);
+
+          gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+          gain.gain.linearRampToValueAtTime(0.06, now + idx * 0.04 + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.04);
+          osc.stop(now + 3.1);
+        });
+
+        this.playReleaseBoom();
+      }
+
+      // Dimensional barrier shatter sound
+      playShatterImpact() {
+        if (!this.enabled || !this.ctx || !this.noiseBuffer) return;
+        const now = this.ctx.currentTime;
+
+        for (let i = 0; i < 4; i++) {
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "bandpass";
+          filter.frequency.setValueAtTime(2200 + i * 950, now + i * 0.025);
+          filter.Q.value = 8;
+
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.18, now + i * 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.025 + 0.22);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start(now + i * 0.025, Math.random() * 0.4, 0.24);
+        }
+
+        this.playReleaseBoom();
+      }
+
+      // Temporal reverse sweep when shards rewind back into place
+      playReverseRewind() {
+        if (!this.enabled || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+
+        osc.frequency.setValueAtTime(36, now);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.85);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.22, now + 0.65);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.92);
+      }
+    }
+
+    const sound = new HollowPurpleAudio();
+    const audioBtn = document.getElementById("audio-btn");
+
+    function updateAudioUI(active) {
+      audioBtn.textContent = active ? "🔊 Sound On" : "🔇 Sound Off";
+    }
+
+    audioBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      haptics.vibrate(15);
+      updateAudioUI(sound.toggle());
+    });
+
+    window.addEventListener("pointerdown", () => {
+      if (!sound.ctx) {
+        sound.init();
+        updateAudioUI(true);
+      } else if (sound.ctx.state === "suspended" && sound.enabled) {
+        sound.ctx.resume();
+      }
+    });
+
+    /* =========================================================================
+     * 2. INCREMENTAL INFINITE SCROLL (ZERO LAG, RESPONSIVE METRICS)
+     * ========================================================================= */
     const content = document.getElementById("content");
-    const text = "🔵 Gojo is alive 🔴 ";
-    const lineHeight = 24; // deve corrispondere al CSS
-    const charWidth = 12;  // larghezza media di un carattere monospace
+    const phrase = "🔵 Gojo is alive 🔴 ";
+    const BUFFER_ROWS = 28;
+    const BUFFER_COLS = 35;
 
     let renderedRows = 0;
     let renderedCols = 0;
+    let currentLineStr = "";
+    const rowElements = [];
+    let scrollTicking = false;
+
+    function getMetrics() {
+      const isMobile = window.innerWidth <= 680;
+      return {
+        lineHeight: isMobile ? 22 : 26,
+        charWidth: isMobile ? 9.8 : 12.2
+      };
+    }
+
+    function buildLine(cols) {
+      const repeats = Math.ceil(cols / phrase.length) + 1;
+      return phrase.repeat(repeats);
+    }
 
     function fillScreen() {
+      const { lineHeight, charWidth } = getMetrics();
       const visibleWidth = window.innerWidth + window.scrollX;
       const visibleHeight = window.innerHeight + window.scrollY;
 
-      const totalCols = Math.ceil(visibleWidth / charWidth);
-      const totalRows = Math.ceil(visibleHeight / lineHeight);
+      const targetCols = Math.ceil(visibleWidth / charWidth) + BUFFER_COLS;
+      const targetRows = Math.ceil(visibleHeight / lineHeight) + BUFFER_ROWS;
 
-      // Se serve più righe
-      while (renderedRows < totalRows) {
-        // Nessun taglio: ripete indefinitamente la frase
-        let line = "";
-        while (line.length < totalCols * 2) { // un po' extra per lo scroll orizzontale
-          line += text;
+      if (targetCols > renderedCols) {
+        renderedCols = targetCols + 25;
+        currentLineStr = buildLine(renderedCols);
+        for (let i = 0; i < rowElements.length; i++) {
+          rowElements[i].textContent = currentLineStr;
         }
-        content.innerHTML += line + "\n";
-        renderedRows++;
       }
 
-      // Se serve più colonne, aggiorna ogni riga
-      if (renderedCols < totalCols) {
-        const lines = content.innerHTML.split("\n");
-        for (let i = 0; i < lines.length - 1; i++) {
-          while (lines[i].length < totalCols * 2) {
-            lines[i] += text;
-          }
+      if (targetRows > renderedRows) {
+        const frag = document.createDocumentFragment();
+        const targetWithBuffer = targetRows + 12;
+        while (renderedRows < targetWithBuffer) {
+          const row = document.createElement("div");
+          row.className = "row";
+          row.textContent = currentLineStr;
+          frag.appendChild(row);
+          rowElements.push(row);
+          renderedRows++;
         }
-        content.innerHTML = lines.join("\n");
-        renderedCols = totalCols;
+        content.appendChild(frag);
       }
+
+      scrollTicking = false;
     }
 
     fillScreen();
 
-    window.addEventListener("scroll", fillScreen);
+    let lastScrollX = window.scrollX;
+    let lastScrollY = window.scrollY;
+    let scrollVelX = 0;
+    let scrollVelY = 0;
+
+    window.addEventListener("scroll", () => {
+      scrollVelX += (window.scrollX - lastScrollX) * 0.04;
+      scrollVelY += (window.scrollY - lastScrollY) * 0.04;
+      lastScrollX = window.scrollX;
+      lastScrollY = window.scrollY;
+
+      if (!scrollTicking) {
+        window.requestAnimationFrame(fillScreen);
+        scrollTicking = true;
+      }
+    }, { passive: true });
+
+    /* =========================================================================
+     * 2.5 SHATTER + REVERSE TEXT EFFECT (GOJO VS JOGO DOMAIN EXPANSION)
+     * ========================================================================= */
+    const shatterStage = document.getElementById("shatter-stage");
+    let domainSequenceTimers = [];
+    let domainRewinding = false;
+
+    function clearDomainSequence() {
+      domainSequenceTimers.forEach((t) => clearTimeout(t));
+      domainSequenceTimers = [];
+      domainRewinding = false;
+      shatterStage.classList.remove("active");
+      shatterStage.innerHTML = "";
+      content.classList.remove(
+        "domain-slide-negative",
+        "domain-rewind-slide",
+        "shattered-hidden"
+      );
+    }
+
+    function buildShatterShards() {
+      shatterStage.innerHTML = "";
+      const { lineHeight, charWidth } = getMetrics();
+      const isMobile = window.innerWidth <= 680;
+
+      const cols = isMobile ? 5 : 6;
+      const rows = isMobile ? 5 : 5;
+      const grid = [];
+
+      for (let r = 0; r <= rows; r++) {
+        const rowPts = [];
+        for (let c = 0; c <= cols; c++) {
+          let px = (c / cols) * 100;
+          let py = (r / rows) * 100;
+          if (c > 0 && c < cols) px += (Math.random() - 0.5) * (100 / cols) * 0.65;
+          if (r > 0 && r < rows) py += (Math.random() - 0.5) * (100 / rows) * 0.65;
+          rowPts.push({ x: px, y: py });
+        }
+        grid.push(rowPts);
+      }
+
+      const visCols = Math.ceil(window.innerWidth / charWidth) + 20;
+      const visRows = Math.ceil(window.innerHeight / lineHeight) + 6;
+      const singleLine = buildLine(visCols);
+      const screenText = Array.from({ length: visRows }, () => singleLine).join("\n");
+
+      const shards = [];
+      const frag = document.createDocumentFragment();
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const p1 = grid[r][c];
+          const p2 = grid[r][c + 1];
+          const p3 = grid[r + 1][c + 1];
+          const p4 = grid[r + 1][c];
+
+          const shard = document.createElement("div");
+          shard.className = "text-shard";
+          shard.textContent = screenText;
+          shard.style.clipPath = `polygon(${p1.x}% ${p1.y}%, ${p2.x}% ${p2.y}%, ${p3.x}% ${p3.y}%, ${p4.x}% ${p4.y}%)`;
+
+          shard.style.transform = "translate3d(-12vw, 18px, 0) skewX(-24deg) scale(1.04)";
+          frag.appendChild(shard);
+
+          const centerX = (p1.x + p2.x + p3.x + p4.x) * 0.25 - 50;
+          const centerY = (p1.y + p2.y + p3.y + p4.y) * 0.25 - 50;
+          const dist = Math.hypot(centerX, centerY) + 5;
+
+          const tx = (centerX / dist) * (220 + Math.random() * 380) + (Math.random() - 0.5) * 120;
+          const ty = (centerY / dist) * (200 + Math.random() * 350) + (Math.random() - 0.5) * 120;
+          const tz = 110 + Math.random() * 420;
+          const rx = (Math.random() - 0.5) * 190;
+          const ry = (Math.random() - 0.5) * 190;
+          const rz = (Math.random() - 0.5) * 150;
+
+          shards.push({ el: shard, tx, ty, tz, rx, ry, rz });
+        }
+      }
+
+      shatterStage.appendChild(frag);
+      shatterStage.classList.add("active");
+      return shards;
+    }
+
+    function runDomainTextSequence() {
+      clearDomainSequence();
+
+      // PHASE 1 (0ms -> 520ms): Text turns NEGATIVE and slides violently sideways (Gojo vs Jogo)
+      content.classList.add("domain-slide-negative");
+      haptics.domainSlide();
+
+      // PHASE 2 (520ms): IMPACT! Text shatters into floating shards inside Unlimited Void
+      domainSequenceTimers.push(setTimeout(() => {
+        const shards = buildShatterShards();
+        content.classList.add("shattered-hidden");
+        sound.playShatterImpact();
+        haptics.domainShatter();
+        triggerScreenShakeAndFlash();
+        spawnBlackFlash(window.innerWidth * 0.5, window.innerHeight * 0.5);
+
+        void shatterStage.offsetWidth;
+
+        shards.forEach((s) => {
+          s.el.style.transition =
+            "transform 4.8s cubic-bezier(0.1, 0.85, 0.2, 1), opacity 4.8s ease, filter 2.5s ease";
+          s.el.style.transform =
+            `translate3d(${s.tx}px, ${s.ty}px, ${s.tz}px) rotateX(${s.rx}deg) rotateY(${s.ry}deg) rotateZ(${s.rz}deg) scale(0.78)`;
+          s.el.style.opacity = "0.28";
+        });
+
+        // PHASE 3 (5800ms): REVERSE TIME! Shards rewind back and fuse into the original text
+        domainSequenceTimers.push(setTimeout(() => {
+          domainRewinding = true;
+          sound.playReverseRewind();
+          haptics.domainRewind();
+
+          shards.forEach((s) => {
+            s.el.style.transition =
+              "transform 0.95s cubic-bezier(0.7, -0.28, 0.25, 1.15), opacity 0.45s ease, filter 0.8s ease";
+            s.el.style.transform = "translate3d(-12vw, 18px, 0) skewX(-24deg) scale(1.04)";
+            s.el.style.opacity = "1";
+          });
+
+          domainSequenceTimers.push(setTimeout(() => {
+            domainRewinding = false;
+            shatterStage.classList.remove("active");
+            shatterStage.innerHTML = "";
+            content.classList.remove("shattered-hidden", "domain-slide-negative");
+            content.classList.add("domain-rewind-slide");
+
+            domainSequenceTimers.push(setTimeout(() => {
+              content.classList.remove("domain-rewind-slide");
+            }, 650));
+          }, 960));
+        }, 5280));
+      }, 520));
+    }
+
+    /* =========================================================================
+     * 2.8 MATRIX RAIN OF GOJO'S POWERS (BEHIND SHARDS DURING DOMAIN EXPANSION)
+     * ========================================================================= */
+    const matrixCanvas = document.getElementById("matrix-canvas");
+    const mCtx = matrixCanvas.getContext("2d");
+
+    const GOJO_MATRIX_PHRASES = [
+      "UNLIMITED VOID ∞ ",
+      "HOLLOW PURPLE 200% ",
+      "SIX EYES RIKUGAN ",
+      "LIMITLESS MUKAGEN ∞ ",
+      "CURSED TECHNIQUE LAPSE: BLUE 順転「蒼」 ",
+      "CURSED TECHNIQUE REVERSAL: RED 反転「赫」 ",
+      "HOLLOW TECHNIQUE: PURPLE 虚式「茈」 ",
+      "DOMAIN EXPANSION 領域展開「無量空処」 ",
+      "BLACK FLASH 黒閃 ",
+      "SATORU GOJO IS ALIVE ",
+      "NAH, I'D WIN. ∞ ",
+      "0.2 SECOND DOMAIN EXPANSION ",
+      "THE HONORED ONE 天上天下唯我独尊 "
+    ];
+
+    const MATRIX_PALETTES = [
+      { head: "#ffffff", glow: "#00f0ff", rgb: "0, 230, 255" },   // Six Eyes Cyan / Blue
+      { head: "#fff0ff", glow: "#d442ff", rgb: "205, 65, 255" },  // Hollow Purple
+      { head: "#ffe8ee", glow: "#ff1e56", rgb: "255, 35, 90" }    // Reversal Red
+    ];
+
+    const MATRIX_COL_WIDTH = 24;
+    const MATRIX_CHAR_HEIGHT = 18;
+    let matrixStreams = [];
+
+    function initMatrixStreams() {
+      matrixStreams = [];
+      const numCols = Math.ceil(window.innerWidth / MATRIX_COL_WIDTH);
+      const maxRows = Math.ceil(window.innerHeight / MATRIX_CHAR_HEIGHT) + 25;
+
+      for (let i = 0; i < numCols; i++) {
+        const phrase = GOJO_MATRIX_PHRASES[i % GOJO_MATRIX_PHRASES.length];
+        const palette = MATRIX_PALETTES[i % MATRIX_PALETTES.length];
+        matrixStreams.push({
+          x: i * MATRIX_COL_WIDTH + 6,
+          headRow: Math.random() * maxRows,
+          speed: 0.24 + Math.random() * 0.36,
+          trailLen: 14 + Math.floor(Math.random() * 14),
+          phrase,
+          offset: Math.floor(Math.random() * phrase.length),
+          palette
+        });
+      }
+    }
+
+    function renderGojoMatrix(dt) {
+      if (!domainActive) {
+        mCtx.clearRect(0, 0, width, height);
+        return;
+      }
+
+      mCtx.clearRect(0, 0, width, height);
+      mCtx.font = "bold 15px 'Courier New', Courier, monospace";
+      mCtx.textAlign = "center";
+
+      const maxRows = Math.ceil(height / MATRIX_CHAR_HEIGHT) + 25;
+
+      for (let i = 0; i < matrixStreams.length; i++) {
+        const col = matrixStreams[i];
+
+        if (domainRewinding) {
+          col.headRow -= col.speed * 3.4 * dt;
+          if (col.headRow < -5) col.headRow = maxRows;
+        } else {
+          col.headRow += col.speed * dt;
+          if (col.headRow - col.trailLen > maxRows) {
+            col.headRow = -Math.random() * 12;
+            col.phrase = GOJO_MATRIX_PHRASES[Math.floor(Math.random() * GOJO_MATRIX_PHRASES.length)];
+          }
+        }
+
+        const headIndex = Math.floor(col.headRow);
+
+        for (let t = 0; t < col.trailLen; t++) {
+          const rowIdx = headIndex - t;
+          const y = rowIdx * MATRIX_CHAR_HEIGHT;
+          if (y < -MATRIX_CHAR_HEIGHT || y > height + MATRIX_CHAR_HEIGHT) continue;
+
+          const charIdx = ((rowIdx + col.offset) % col.phrase.length + col.phrase.length) % col.phrase.length;
+          const ch = col.phrase[charIdx];
+          if (ch === " ") continue;
+
+          if (t === 0) {
+            mCtx.fillStyle = col.palette.head;
+            mCtx.shadowColor = col.palette.glow;
+            mCtx.shadowBlur = 10;
+            mCtx.fillText(ch, col.x, y);
+            mCtx.shadowBlur = 0;
+          } else {
+            const alpha = Math.pow(1 - t / col.trailLen, 1.35) * 0.88;
+            mCtx.fillStyle = `rgba(${col.palette.rgb}, ${alpha})`;
+            mCtx.fillText(ch, col.x, y);
+          }
+        }
+      }
+    }
+
+    /* =========================================================================
+     * 3. CONTINUOUS STREAMS: BLUE (LEFT) + RED (RIGHT) -> PURPLE CORE (CENTER)
+     * ========================================================================= */
+    const fluidCanvas = document.getElementById("fluid-canvas");
+    const fCtx = fluidCanvas.getContext("2d", { alpha: true });
+    const fxCanvas = document.getElementById("fx-canvas");
+    const fxCtx = fxCanvas.getContext("2d", { alpha: true });
+
+    const FLUID_SCALE = 0.6;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    function resizeCanvases() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      fluidCanvas.width = Math.ceil(width * FLUID_SCALE);
+      fluidCanvas.height = Math.ceil(height * FLUID_SCALE);
+      fxCanvas.width = width;
+      fxCanvas.height = height;
+      matrixCanvas.width = width;
+      matrixCanvas.height = height;
+      initMatrixStreams();
+    }
+    resizeCanvases();
+
     window.addEventListener("resize", () => {
-      renderedRows = 0;
-      renderedCols = 0;
-      content.innerHTML = "";
+      resizeCanvases();
       fillScreen();
     });
+
+    const SPRITE_SIZE = 128;
+    function createDropletSprite(stops) {
+      const c = document.createElement("canvas");
+      c.width = SPRITE_SIZE;
+      c.height = SPRITE_SIZE;
+      const ctx = c.getContext("2d");
+      const half = SPRITE_SIZE / 2;
+      const g = ctx.createRadialGradient(half, half, half * 0.08, half, half, half);
+      for (const [offset, color] of stops) {
+        g.addColorStop(offset, color);
+      }
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(half, half, half, 0, Math.PI * 2);
+      ctx.fill();
+      return c;
+    }
+
+    const SPRITE_BLUE = createDropletSprite([
+      [0, "rgba(215, 252, 255, 1)"],
+      [0.45, "rgba(0, 150, 255, 0.95)"],
+      [0.78, "rgba(0, 80, 255, 0.4)"],
+      [1, "rgba(0, 40, 255, 0)"]
+    ]);
+
+    const SPRITE_RED = createDropletSprite([
+      [0, "rgba(255, 220, 228, 1)"],
+      [0.45, "rgba(255, 20, 68, 0.95)"],
+      [0.78, "rgba(210, 0, 45, 0.4)"],
+      [1, "rgba(150, 0, 25, 0)"]
+    ]);
+
+    const SPRITE_PURPLE = createDropletSprite([
+      [0, "rgba(255, 240, 255, 1)"],
+      [0.4, "rgba(195, 45, 255, 0.96)"],
+      [0.75, "rgba(125, 0, 235, 0.55)"],
+      [1, "rgba(70, 0, 160, 0)"]
+    ]);
+
+    const pointer = {
+      x: width * 0.5,
+      y: height * 0.5,
+      vx: 0,
+      vy: 0,
+      active: false,
+      pressing: false,
+      trail: []
+    };
+
+    const kanjiOverlay = document.getElementById("kanji-overlay");
+    const kanjiCenter = document.getElementById("kanji-center");
+    const kanjiMain = document.getElementById("kanji-main");
+    const kanjiSub = document.getElementById("kanji-sub");
+    let kanjiTimer = null;
+
+    function flashKanji(mainText, subText) {
+      kanjiMain.textContent = mainText;
+      kanjiSub.textContent = subText;
+      kanjiCenter.classList.add("show");
+      clearTimeout(kanjiTimer);
+      kanjiTimer = setTimeout(() => {
+        kanjiCenter.classList.remove("show");
+      }, 1400);
+    }
+
+    function triggerScreenShakeAndFlash() {
+      document.body.classList.add("impact-flash", "shaking");
+      setTimeout(() => document.body.classList.remove("impact-flash"), 75);
+      setTimeout(() => document.body.classList.remove("shaking"), 360);
+    }
+
+    // Prevent mobile long-press context menu from interrupting Hollow Purple charge
+    window.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    window.addEventListener("pointermove", (e) => {
+      pointer.vx = (e.clientX - pointer.x) * 0.6;
+      pointer.vy = (e.clientY - pointer.y) * 0.6;
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+      pointer.trail.push({ x: e.clientX, y: e.clientY, life: 1 });
+      if (pointer.trail.length > 18) pointer.trail.shift();
+    }, { passive: true });
+
+    window.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("#hud")) return;
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+      pointer.pressing = true;
+      kanjiOverlay.classList.add("charging");
+      haptics.startCharge();
+    });
+
+    function releaseCharge() {
+      if (pointer.pressing) {
+        pointer.pressing = false;
+        kanjiOverlay.classList.remove("charging");
+        detonateHollowPurple();
+      }
+    }
+
+    window.addEventListener("pointerup", releaseCharge);
+    window.addEventListener("pointercancel", () => {
+      pointer.pressing = false;
+      kanjiOverlay.classList.remove("charging");
+      haptics.stopCharge();
+    });
+
+    // Domain Expansion & Black Flash triggers (Buttons + Keyboard)
+    let domainActive = false;
+    let domainTimer = null;
+    const domainStars = Array.from({ length: 140 }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: 20 + Math.random() * Math.max(window.innerWidth, window.innerHeight),
+      speed: 2 + Math.random() * 7,
+      size: 1 + Math.random() * 2.2
+    }));
+
+    function triggerDomainExpansion() {
+      if (!sound.ctx) {
+        sound.init();
+        updateAudioUI(true);
+      }
+      domainActive = true;
+      document.body.classList.add("domain-active");
+      sound.playDomainExpansion();
+      triggerScreenShakeAndFlash();
+      flashKanji("領域展開「無量空処」", "Domain Expansion: Unlimited Void");
+
+      runDomainTextSequence();
+
+      clearTimeout(domainTimer);
+      domainTimer = setTimeout(() => {
+        domainActive = false;
+        document.body.classList.remove("domain-active");
+      }, 8500);
+    }
+
+    function triggerBlackFlash() {
+      if (!sound.ctx) {
+        sound.init();
+        updateAudioUI(true);
+      }
+      spawnBlackFlash(width * 0.5, height * 0.5);
+      sound.playReleaseBoom();
+      haptics.blackFlash();
+      triggerScreenShakeAndFlash();
+      flashKanji("黒閃", "Black Flash");
+    }
+
+    document.getElementById("domain-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      triggerDomainExpansion();
+    });
+
+    document.getElementById("bf-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      triggerBlackFlash();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        triggerDomainExpansion();
+      } else if (e.code === "KeyF") {
+        triggerBlackFlash();
+      }
+    });
+
+    const SIDE_BLUE = 0;
+    const SIDE_RED = 1;
+    const ROLE_STREAM = 0; // Inexhaustible side streams (Blue Left / Red Right)
+    const ROLE_CORE = 1;   // Perpetual Hollow Purple vortex at the center
+
+    const particles = [];
+    const sparks = [];
+    const shockwaves = [];
+    const blackFlashes = [];
+    let simTime = 0;
+
+    function spawnBlackFlash(originX, originY) {
+      for (let b = 0; b < 7; b++) {
+        const points = [{ x: originX, y: originY }];
+        let currX = originX;
+        let currY = originY;
+        const baseAngle = (Math.PI * 2 * b) / 7 + (Math.random() - 0.5) * 0.5;
+        const steps = 8 + Math.floor(Math.random() * 6);
+
+        for (let s = 0; s < steps; s++) {
+          const a = baseAngle + (Math.random() - 0.5) * 1.1;
+          const stepLen = 35 + Math.random() * 55;
+          currX += Math.cos(a) * stepLen;
+          currY += Math.sin(a) * stepLen;
+          points.push({ x: currX, y: currY });
+        }
+        blackFlashes.push({ points, life: 1 });
+      }
+    }
+
+    function detonateHollowPurple() {
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+      sound.playReleaseBoom();
+      haptics.detonatePurple();
+      triggerScreenShakeAndFlash();
+      flashKanji("虚式「茈」", "Hollow Technique: Purple — 200% Output");
+      spawnBlackFlash(cx, cy);
+
+      shockwaves.push({
+        x: cx,
+        y: cy,
+        radius: 15,
+        maxRadius: Math.max(width, height) * 0.55,
+        alpha: 1,
+        lineWidth: 5
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const dx = p.x - cx;
+        const dy = p.y - cy;
+        const dist = Math.hypot(dx, dy) + 1;
+        if (dist < 300) {
+          const impulse = (1 - dist / 300) * 18;
+          p.vx += (dx / dist) * impulse;
+          p.vy += (dy / dist) * impulse;
+        }
+      }
+    }
+
+    class FluidParticle {
+      constructor(role, side, initialProgress) {
+        this.role = role;
+        this.side = side;
+        this.init(initialProgress);
+      }
+
+      init(initialProgress = 0) {
+        this.baseRadius = this.role === ROLE_STREAM
+          ? 22 + Math.random() * 12
+          : 26 + Math.random() * 16;
+        this.radius = this.baseRadius;
+
+        const cx = width * 0.5;
+        const cy = height * 0.5;
+
+        if (this.role === ROLE_STREAM) {
+          this.fusion = 0;
+          this.streamOffset = (Math.random() - 0.5) * 55;
+          this.wavePhase = Math.random() * Math.PI * 2;
+          const startX = this.side === SIDE_BLUE ? -35 : width + 35;
+
+          this.x = startX + (cx - startX) * initialProgress;
+          this.y = cy + this.streamOffset + Math.sin(initialProgress * 5 + this.wavePhase) * 28;
+
+          const dir = this.side === SIDE_BLUE ? 1 : -1;
+          this.vx = dir * (5.2 + Math.random() * 2.5);
+          this.vy = (Math.random() - 0.5) * 1.5;
+        } else {
+          this.fusion = 1;
+          const angle = Math.random() * Math.PI * 2;
+          const orbitR = Math.random() * 85;
+          this.x = cx + Math.cos(angle) * orbitR;
+          this.y = cy + Math.sin(angle) * orbitR;
+          this.vx = -Math.sin(angle) * 3;
+          this.vy = Math.cos(angle) * 3;
+          this.life = Math.random() * 180;
+        }
+      }
+
+      update(dt) {
+        const cx = width * 0.5;
+        const cy = height * 0.5;
+        const dx = cx - this.x;
+        const dy = cy - this.y;
+        const dist = Math.hypot(dx, dy) + 0.1;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        if (this.role === ROLE_STREAM) {
+          const streamSpeed = pointer.pressing ? 0.52 : 0.38;
+          const waveY = cy + this.streamOffset + Math.sin(simTime * 3.5 + this.wavePhase) * 34;
+          const dyStream = waveY - this.y;
+
+          this.vx += nx * streamSpeed * dt;
+          this.vy += (dyStream * 0.012 + ny * 0.18) * dt;
+
+          if (dist < 110) {
+            this.fusion = Math.min(1, (1 - dist / 110) * 1.15);
+          } else {
+            this.fusion = Math.max(0, this.fusion - 0.08 * dt);
+          }
+
+          if (dist < 38 || this.x < -80 || this.x > width + 80) {
+            if (dist < 38 && Math.random() < 0.18) {
+              spawnCoreFX(this.x, this.y);
+              sound.playFusionPulse();
+              haptics.pulseFusion();
+            }
+            this.init(0);
+            return;
+          }
+        } else {
+          this.life += dt;
+          const targetR = pointer.pressing ? 32 : domainActive ? 105 : 70;
+          const radialPull = (dist - targetR) * 0.0055 * dt;
+          const swirlSpeed = (pointer.pressing ? 0.55 : 0.36) * dt;
+
+          this.vx += nx * radialPull - ny * swirlSpeed;
+          this.vy += ny * radialPull + nx * swirlSpeed;
+
+          if (this.life > 180) {
+            this.vx -= nx * 0.28 * dt;
+            this.vy -= ny * 0.28 * dt;
+            this.radius *= Math.pow(0.96, dt);
+            if (this.radius < 6 || dist > 260) {
+              this.init(0);
+              return;
+            }
+          }
+        }
+
+        if (pointer.active && !pointer.pressing) {
+          const mdx = this.x - pointer.x;
+          const mdy = this.y - pointer.y;
+          const mDist = Math.hypot(mdx, mdy);
+          if (mDist < 120 && mDist > 1) {
+            const force = (1 - mDist / 120) * 0.25 * dt;
+            this.vx += (mdx / mDist) * force + pointer.vx * 0.05 * dt;
+            this.vy += (mdy / mDist) * force + pointer.vy * 0.05 * dt;
+          }
+        }
+
+        this.vx -= scrollVelX * 0.04 * dt;
+        this.vy -= scrollVelY * 0.04 * dt;
+
+        const damping = Math.pow(0.935, dt);
+        this.vx *= damping;
+        this.vy *= damping;
+
+        const speed = Math.hypot(this.vx, this.vy);
+        const maxSpeed = 10.5;
+        if (speed > maxSpeed) {
+          this.vx = (this.vx / speed) * maxSpeed;
+          this.vy = (this.vy / speed) * maxSpeed;
+        }
+
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+      }
+
+      draw(ctx) {
+        const drawR = this.radius * 1.45 * FLUID_SCALE;
+        const sx = this.x * FLUID_SCALE - drawR;
+        const sy = this.y * FLUID_SCALE - drawR;
+        const size = drawR * 2;
+
+        if (this.role === ROLE_CORE) {
+          ctx.globalAlpha = 0.92;
+          ctx.drawImage(SPRITE_PURPLE, sx, sy, size, size);
+          return;
+        }
+
+        const baseSprite = this.side === SIDE_BLUE ? SPRITE_BLUE : SPRITE_RED;
+        if (this.fusion < 0.98) {
+          ctx.globalAlpha = 1 - this.fusion;
+          ctx.drawImage(baseSprite, sx, sy, size, size);
+        }
+        if (this.fusion > 0.02) {
+          ctx.globalAlpha = this.fusion;
+          ctx.drawImage(SPRITE_PURPLE, sx, sy, size, size);
+        }
+      }
+    }
+
+    for (let i = 0; i < 150; i++) {
+      const side = i % 2 === 0 ? SIDE_BLUE : SIDE_RED;
+      particles.push(new FluidParticle(ROLE_STREAM, side, i / 150));
+    }
+    for (let i = 0; i < 75; i++) {
+      particles.push(new FluidParticle(ROLE_CORE, SIDE_BLUE, 0));
+    }
+
+    function spawnCoreFX(x, y) {
+      if (sparks.length < 100) {
+        for (let i = 0; i < 2; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2.5 + Math.random() * 5.5;
+          sparks.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1,
+            decay: 0.028 + Math.random() * 0.025,
+            size: 1.8 + Math.random() * 2.2
+          });
+        }
+      }
+      if (shockwaves.length < 5 && Math.random() < 0.2) {
+        shockwaves.push({
+          x,
+          y,
+          radius: 12,
+          maxRadius: 85 + Math.random() * 55,
+          alpha: 0.6,
+          lineWidth: 1.8
+        });
+      }
+      if (Math.random() < 0.25) sound.playSpark();
+    }
+
+    function solveFluidInteractions(dt) {
+      const len = particles.length;
+      for (let i = 0; i < len; i++) {
+        const a = particles[i];
+        for (let j = i + 1; j < len; j++) {
+          const b = particles[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const distSq = dx * dx + dy * dy;
+          const minSep = (a.radius + b.radius) * 0.58;
+
+          if (distSq < minSep * minSep && distSq > 0.01) {
+            const dist = Math.sqrt(distSq);
+            const push = ((minSep - dist) / minSep) * 0.22 * dt;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            a.vx -= nx * push;
+            a.vy -= ny * push;
+            b.vx += nx * push;
+            b.vy += ny * push;
+          }
+        }
+      }
+    }
+
+    /* =========================================================================
+     * 4. RENDERING LOOP (60/120 FPS + UNLIMITED VOID + BLACK FLASH + MATRIX)
+     * ========================================================================= */
+    let lastTime = performance.now();
+
+    function animate(now) {
+      const dt = Math.min(2.2, Math.max(0.5, (now - lastTime) / 16.667));
+      lastTime = now;
+      simTime += 0.016 * dt;
+
+      const fw = fluidCanvas.width;
+      const fh = fluidCanvas.height;
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+
+      fCtx.clearRect(0, 0, fw, fh);
+      fCtx.globalCompositeOperation = "lighter";
+
+      const sideSize = 110 * FLUID_SCALE;
+      fCtx.globalAlpha = 0.85;
+      fCtx.drawImage(SPRITE_BLUE, -sideSize * 0.5, cy * FLUID_SCALE - sideSize, sideSize * 2, sideSize * 2);
+      fCtx.drawImage(SPRITE_RED, fw - sideSize * 1.5, cy * FLUID_SCALE - sideSize, sideSize * 2, sideSize * 2);
+
+      const coreSize = (pointer.pressing ? 115 : 155 + Math.sin(simTime * 4) * 16) * FLUID_SCALE;
+      fCtx.globalAlpha = 0.82;
+      fCtx.drawImage(
+        SPRITE_PURPLE,
+        cx * FLUID_SCALE - coreSize,
+        cy * FLUID_SCALE - coreSize,
+        coreSize * 2,
+        coreSize * 2
+      );
+
+      solveFluidInteractions(dt);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.update(dt);
+        p.draw(fCtx);
+      }
+      fCtx.globalAlpha = 1;
+
+      sound.updateDrone(pointer.pressing, domainActive);
+
+      // Update Matrix rain of Gojo's powers behind shattered fragments
+      renderGojoMatrix(dt);
+
+      // SECOND CANVAS: Unlimited Void, Black Flash, Six Eyes Trail & Sparks
+      fxCtx.clearRect(0, 0, width, height);
+      fxCtx.globalCompositeOperation = "lighter";
+
+      if (domainActive) {
+        const maxDim = Math.max(width, height);
+        fxCtx.strokeStyle = "rgba(200, 240, 255, 0.75)";
+        for (let i = 0; i < domainStars.length; i++) {
+          const st = domainStars[i];
+          const prevDist = st.dist;
+          st.dist += st.speed * 3.5 * dt;
+          if (st.dist > maxDim * 0.8) st.dist = 25 + Math.random() * 40;
+
+          const x1 = cx + Math.cos(st.angle) * prevDist;
+          const y1 = cy + Math.sin(st.angle) * prevDist;
+          const x2 = cx + Math.cos(st.angle) * st.dist;
+          const y2 = cy + Math.sin(st.angle) * st.dist;
+
+          fxCtx.lineWidth = st.size;
+          fxCtx.beginPath();
+          fxCtx.moveTo(x1, y1);
+          fxCtx.lineTo(x2, y2);
+          fxCtx.stroke();
+        }
+
+        // Event Horizon ring of Unlimited Void
+        fxCtx.save();
+        fxCtx.globalCompositeOperation = "source-over";
+        fxCtx.fillStyle = "#000000";
+        fxCtx.shadowColor = "#ffffff";
+        fxCtx.shadowBlur = 35;
+        fxCtx.beginPath();
+        fxCtx.arc(cx, cy, 58, 0, Math.PI * 2);
+        fxCtx.fill();
+        fxCtx.lineWidth = 3;
+        fxCtx.strokeStyle = "rgba(225, 250, 255, 0.95)";
+        fxCtx.stroke();
+        fxCtx.restore();
+      }
+
+      // Circular shockwaves
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.radius += (sw.maxRadius - sw.radius) * 0.1 * dt;
+        sw.alpha -= 0.022 * dt;
+
+        if (sw.alpha <= 0.01) {
+          shockwaves.splice(i, 1);
+          continue;
+        }
+
+        fxCtx.strokeStyle = `rgba(225, 135, 255, ${sw.alpha})`;
+        fxCtx.lineWidth = sw.lineWidth;
+        fxCtx.beginPath();
+        fxCtx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        fxCtx.stroke();
+      }
+
+      // Red & Black lightning bolts of Black Flash (Kokusen)
+      if (blackFlashes.length > 0) {
+        fxCtx.save();
+        for (let i = blackFlashes.length - 1; i >= 0; i--) {
+          const bf = blackFlashes[i];
+          bf.life -= 0.045 * dt;
+          if (bf.life <= 0) {
+            blackFlashes.splice(i, 1);
+            continue;
+          }
+
+          fxCtx.globalCompositeOperation = "lighter";
+          fxCtx.strokeStyle = `rgba(255, 0, 55, ${bf.life})`;
+          fxCtx.shadowColor = "#ff0033";
+          fxCtx.shadowBlur = 20;
+          fxCtx.lineWidth = 8 * bf.life;
+          fxCtx.beginPath();
+          fxCtx.moveTo(bf.points[0].x, bf.points[0].y);
+          for (let p = 1; p < bf.points.length; p++) {
+            fxCtx.lineTo(bf.points[p].x, bf.points[p].y);
+          }
+          fxCtx.stroke();
+
+          fxCtx.globalCompositeOperation = "source-over";
+          fxCtx.strokeStyle = `rgba(5, 0, 10, ${bf.life})`;
+          fxCtx.shadowBlur = 0;
+          fxCtx.lineWidth = 3.5 * bf.life;
+          fxCtx.stroke();
+        }
+        fxCtx.restore();
+      }
+
+      // Purple sparks
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        const sparkDamp = Math.pow(0.94, dt);
+        s.vx *= sparkDamp;
+        s.vy *= sparkDamp;
+        s.life -= s.decay * dt;
+
+        if (s.life <= 0.01) {
+          sparks.splice(i, 1);
+          continue;
+        }
+
+        fxCtx.fillStyle = `rgba(245, 195, 255, ${s.life})`;
+        fxCtx.beginPath();
+        fxCtx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+        fxCtx.fill();
+      }
+
+      // Pointer trail "Six Eyes + Limitless (∞)"
+      if (pointer.trail.length > 1) {
+        for (let i = pointer.trail.length - 1; i >= 0; i--) {
+          const pt = pointer.trail[i];
+          pt.life -= 0.06 * dt;
+          if (pt.life <= 0) {
+            pointer.trail.splice(i, 1);
+            continue;
+          }
+          fxCtx.fillStyle = `rgba(140, 240, 255, ${pt.life * 0.55})`;
+          fxCtx.beginPath();
+          fxCtx.arc(pt.x, pt.y, 6 * pt.life, 0, Math.PI * 2);
+          fxCtx.fill();
+        }
+
+        fxCtx.font = "bold 18px monospace";
+        fxCtx.fillStyle = "rgba(210, 250, 255, 0.85)";
+        fxCtx.fillText("∞", pointer.x + 10, pointer.y - 10);
+      }
+
+      scrollVelX *= Math.pow(0.86, dt);
+      scrollVelY *= Math.pow(0.86, dt);
+      pointer.vx *= Math.pow(0.55, dt);
+      pointer.vy *= Math.pow(0.55, dt);
+
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
   </script>
 </body>
 </html>
